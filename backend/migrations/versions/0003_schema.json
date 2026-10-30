@@ -1,0 +1,458 @@
+[
+  {
+    "name": "opportunities",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "primary_key": true,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "owner_id",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": "users.id"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "length": 200,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 30,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "revision",
+        "type": "integer",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      }
+    ],
+    "uniques": [],
+    "indexes": [
+      {
+        "name": "ix_opportunities_owner_id",
+        "columns": [
+          "owner_id"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "job_requirements",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "primary_key": true,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "opportunity_id",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": "opportunities.id"
+      },
+      {
+        "name": "text",
+        "type": "text",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "start",
+        "type": "integer",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "end",
+        "type": "integer",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "kind",
+        "type": "string",
+        "length": 20,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 20,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "revision",
+        "type": "integer",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      }
+    ],
+    "uniques": [],
+    "indexes": [
+      {
+        "name": "ix_job_requirements_opportunity_id",
+        "columns": [
+          "opportunity_id"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "career_workflows",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "primary_key": true,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "opportunity_id",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": "opportunities.id"
+      },
+      {
+        "name": "kind",
+        "type": "string",
+        "length": 30,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "input_hash",
+        "type": "string",
+        "length": 64,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "input_json",
+        "type": "json",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 30,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "attempts",
+        "type": "integer",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "available_at",
+        "type": "float",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "lease_until",
+        "type": "float",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "lease_token",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "error",
+        "type": "text",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "audit",
+        "type": "json",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      }
+    ],
+    "uniques": [
+      [
+        "opportunity_id",
+        "kind",
+        "input_hash"
+      ]
+    ],
+    "indexes": [
+      {
+        "name": "ix_career_workflows_available_at",
+        "columns": [
+          "available_at"
+        ],
+        "unique": false
+      },
+      {
+        "name": "ix_career_workflows_opportunity_id",
+        "columns": [
+          "opportunity_id"
+        ],
+        "unique": false
+      },
+      {
+        "name": "ix_career_workflows_status",
+        "columns": [
+          "status"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "match_runs",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "primary_key": true,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "opportunity_id",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": "opportunities.id"
+      },
+      {
+        "name": "workflow_id",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": "career_workflows.id"
+      },
+      {
+        "name": "input_hash",
+        "type": "string",
+        "length": 64,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "items",
+        "type": "json",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "created_at",
+        "type": "float",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      }
+    ],
+    "uniques": [
+      [
+        "workflow_id"
+      ]
+    ],
+    "indexes": [
+      {
+        "name": "ix_match_runs_opportunity_id",
+        "columns": [
+          "opportunity_id"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "resume_artifacts",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "primary_key": true,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "opportunity_id",
+        "type": "string",
+        "length": 36,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": "opportunities.id"
+      },
+      {
+        "name": "version",
+        "type": "integer",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "input_hash",
+        "type": "string",
+        "length": 64,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "input_json",
+        "type": "json",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "claims",
+        "type": "json",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "findings",
+        "type": "json",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 30,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "content_hash",
+        "type": "string",
+        "length": 64,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "approved_hash",
+        "type": "string",
+        "length": 64,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      },
+      {
+        "name": "created_at",
+        "type": "float",
+        "length": null,
+        "primary_key": false,
+        "nullable": false,
+        "foreign_key": null
+      }
+    ],
+    "uniques": [
+      [
+        "opportunity_id",
+        "version"
+      ]
+    ],
+    "indexes": [
+      {
+        "name": "ix_resume_artifacts_opportunity_id",
+        "columns": [
+          "opportunity_id"
+        ],
+        "unique": false
+      }
+    ]
+  }
+]

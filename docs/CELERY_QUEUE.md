@@ -1,0 +1,16 @@
+# Celery and durable RabbitMQ dispatch
+
+Production command: `celery -A app.celery_app:celery worker -Q documents,ai,maintenance --concurrency=2 --loglevel=WARNING`.
+Run the separate outbox relay with `python -m app.outbox`. Compose includes RabbitMQ with a persistent volume, durable queues, publisher confirms, and persistent messages. Configure `CELERY_BROKER_URL` server-side; the included credentials are local-development-only. Do not publish RabbitMQ ports or use the development credentials in production. Use TLS/private networking and externally provisioned credentials for production.
+
+The API writes job state and an identifier-only dispatch event in the same PostgreSQL transaction. The relay publishes a confirmed message and marks the outbox record published. A crash between those actions can duplicate delivery. Celery acknowledges late and requeues worker loss; fenced/idempotent job writes prevent duplicate committed outputs. No result backend stores private payloads. Only topic and job UUID enter broker messages. The prior `python -m app.worker` polling process is disabled; `run_once` remains a local test helper and exact-ID execution implementation.
+
+Retries are recorded in PostgreSQL, with a new outbox event committed atomically. The relay reconciles queued work whose delivery was lost and expired running leases. It never performs parsing/model work itself. Execution leases renew every 30 seconds; a 600-second lease exceeds Celery's 270-second hard task limit. Database commit fencing remains authoritative if a worker loses its lease. At-least-once delivery still means external provider calls and billing may repeat after a crash; no exactly-once promise is made.
+
+Document processing uses the `documents` queue, career AI operations use `ai`, and account cleanup uses `maintenance`. Separate worker services can subscribe to different queues for resource isolation. Compose starts one worker across all three for development. Publisher/database outages back off without logging exception messages containing connection strings. Permanent task failures remain visible in application job state and require a candidate retry. No raw facts, documents, credentials or provider exception bodies are placed in the outbox.
+
+Migration 0005 creates the dispatch table and eligible-job indexes. Existing queued/running work is recovered by the relay; completed work is not reenqueued.
+
+Tests in `tests/test_broker_queue.py` cover transaction rollback, identifier-only dispatch, broker failure and safe error recording, duplicate Celery invocation, lost delivery reconciliation, retry enqueue and durable configuration. Mock publishers are not proof of an operational broker; see the consolidated validation record for real-component checks.
+
+Optional actual broker round-trip: set `LIVE_BROKER_URL` to a disposable RabbitMQ instance and run `python -m pytest tests/test_broker_queue.py::test_live_rabbitmq_worker_round_trip -q`. It starts a real Celery consumer, commits an upload/outbox row, publishes through AMQP, and verifies completed parsing/proposals. Default test runs skip this test rather than claim broker validation from mocks. Do not point this test at a production broker or database.

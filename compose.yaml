@@ -1,0 +1,79 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: career
+      POSTGRES_USER: career
+      POSTGRES_PASSWORD: local-development-only
+    ports: ['127.0.0.1:5432:5432']
+    volumes: ['postgres_data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U career -d career']
+      interval: 3s
+      retries: 20
+  migrate:
+    build: ./backend
+    environment: &backend_environment
+      DATABASE_URL: postgresql+psycopg://career:local-development-only@db:5432/career
+      STORAGE_ROOT: /data/documents
+      WEB_ORIGIN: http://localhost:3000
+      AUTH_MODE: local
+      EXTRACTION_ADAPTER: ${EXTRACTION_ADAPTER:-openai}
+      APP_ENV: development
+      CELERY_BROKER_URL: amqp://career:local-development-only@rabbitmq:5672//
+    command: ['alembic', 'upgrade', 'head']
+    depends_on:
+      db: {condition: service_healthy}
+  api:
+    build: ./backend
+    environment: *backend_environment
+    ports: ['127.0.0.1:8000:8000']
+    command: ['uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000']
+    volumes: ['documents:/data/documents']
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  rabbitmq:
+    image: rabbitmq:4.1
+    environment:
+      RABBITMQ_DEFAULT_USER: career
+      RABBITMQ_DEFAULT_PASS: local-development-only
+    volumes: ['rabbitmq_data:/var/lib/rabbitmq']
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+  relay:
+    build: ./backend
+    environment: *backend_environment
+    command: ['python', '-m', 'app.outbox']
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+  worker:
+    build: ./backend
+    environment:
+      <<: *backend_environment
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_API_KEY_FILE: /run/secrets/openai_api_key
+    secrets: [openai_api_key]
+    command: ['celery', '-A', 'app.celery_app:celery', 'worker', '-Q', 'documents,ai,maintenance', '--concurrency=2', '--loglevel=WARNING']
+    volumes: ['documents:/data/documents']
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+  web:
+    build: ./web
+    ports: ['127.0.0.1:3000:3000']
+    depends_on: [api]
+volumes:
+  postgres_data:
+  documents:
+  rabbitmq_data:
+
+# Mount only on the worker; supply an absolute path outside this repository.
+secrets:
+  openai_api_key:
+    file: ${OPENAI_SECRET_FILE:-/run/secrets/career_openai_api_key}

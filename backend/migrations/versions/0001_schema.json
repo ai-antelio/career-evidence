@@ -1,0 +1,458 @@
+[
+  {
+    "name": "users",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "email",
+        "type": "string",
+        "length": 254,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "password_hash",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [
+      [
+        "email"
+      ]
+    ],
+    "indexes": []
+  },
+  {
+    "name": "documents",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "owner_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "users.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "filename",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "digest",
+        "type": "string",
+        "length": 64,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "storage_key",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 30,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "parser_version",
+        "type": "string",
+        "length": 40,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "text",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [
+      [
+        "owner_id",
+        "digest"
+      ]
+    ],
+    "indexes": [
+      {
+        "name": "ix_documents_owner_id",
+        "columns": [
+          "owner_id"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "sessions",
+    "columns": [
+      {
+        "name": "token_hash",
+        "type": "string",
+        "length": 64,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "owner_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "users.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "expires",
+        "type": "float",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [],
+    "indexes": []
+  },
+  {
+    "name": "fact_proposals",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "owner_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "users.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "document_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "documents.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "value",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "length": 40,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "start",
+        "type": "integer",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "end",
+        "type": "integer",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 30,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "revision",
+        "type": "integer",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [
+      [
+        "document_id",
+        "start"
+      ]
+    ],
+    "indexes": [
+      {
+        "name": "ix_fact_proposals_owner_id",
+        "columns": [
+          "owner_id"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "outbox_jobs",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "document_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "documents.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "length": 30,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "attempts",
+        "type": "integer",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "available_at",
+        "type": "float",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "lease_until",
+        "type": "float",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "lease_token",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "error",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [
+      [
+        "document_id"
+      ]
+    ],
+    "indexes": []
+  },
+  {
+    "name": "fact_versions",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "owner_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "users.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "proposal_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "fact_proposals.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "version",
+        "type": "integer",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "value",
+        "type": "text",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "provenance",
+        "type": "string",
+        "length": 40,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "confirmed_by",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "users.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "float",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [
+      [
+        "proposal_id",
+        "version"
+      ]
+    ],
+    "indexes": [
+      {
+        "name": "ix_fact_versions_owner_id",
+        "columns": [
+          "owner_id"
+        ],
+        "unique": false
+      }
+    ]
+  },
+  {
+    "name": "review_events",
+    "columns": [
+      {
+        "name": "id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": null,
+        "primary_key": true,
+        "nullable": false
+      },
+      {
+        "name": "proposal_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "fact_proposals.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "actor_id",
+        "type": "string",
+        "length": 36,
+        "foreign_key": "users.id",
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "action",
+        "type": "string",
+        "length": 30,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "float",
+        "length": null,
+        "foreign_key": null,
+        "primary_key": false,
+        "nullable": false
+      }
+    ],
+    "uniques": [],
+    "indexes": []
+  }
+]
